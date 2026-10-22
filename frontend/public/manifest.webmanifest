@@ -1,0 +1,19 @@
+{
+  "name": "RealEstate Admin & Employee Panel",
+  "short_name": "RealEstate",
+  "description": "Real Estate Company - Admin & Employee Panel",
+  "start_url": ".",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1e2a44",
+  "theme_color": "#1e2a44",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
