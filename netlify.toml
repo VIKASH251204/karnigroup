@@ -1,0 +1,13 @@
+[build]
+  # The Angular app lives in ./frontend (there is no real-estate-panel folder in the repo)
+  base = "frontend"
+  # Install deps explicitly so the Angular CLI (ng) is always available
+  command = "npm ci && npm run build"
+  # Angular 18 application builder emits browser files into dist/<project>/browser
+  publish = "dist/realestate-panel/browser"
+
+# Single-page app: serve index.html for client-side routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
