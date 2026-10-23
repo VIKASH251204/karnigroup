@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  // '/api' -> Angular dev-server proxy -> .NET API (see proxy.conf.json)
+  // Same-origin Netlify Function routes in production and Netlify Dev.
   apiUrl: '/api'
 };
