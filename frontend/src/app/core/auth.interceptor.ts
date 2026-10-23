@@ -1,22 +1,15 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
+import { catchError, from, switchMap, throwError } from 'rxjs';
+import { getUser } from '@netlify/identity';
 import { AuthService } from './auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
-  const token = auth.token;
-
-  const cloned = token
-    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
-    : req;
-
-  return next(cloned).pipe(
-    catchError((err: HttpErrorResponse) => {
-      if (err.status === 401 && !req.url.includes('/auth/login')) {
-        auth.logout();
-      }
-      return throwError(() => err);
-    })
-  );
+  if (!req.url.startsWith('/api/')) return next(req);
+  // Refresh Identity's cookie before calling protected same-origin API routes.
+  return from(getUser()).pipe(switchMap(() => next(req)), catchError((err: HttpErrorResponse) => {
+    if (err.status === 401 && !req.url.includes('/auth/login') && !req.url.includes('/auth/change-password')) auth.logout();
+    return throwError(() => err);
+  }));
 };

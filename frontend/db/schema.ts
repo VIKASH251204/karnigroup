@@ -5,6 +5,7 @@ const ts = (name: string) => timestamp(name, { withTimezone: true, mode: "date" 
 
 export const users = pgTable("users", {
   id: serial().primaryKey(),
+  identityId: varchar("identity_id", { length: 100 }).unique(),
   fullName: varchar("full_name", { length: 120 }).notNull(),
   email: varchar({ length: 150 }).notNull().unique(),
   phone: varchar({ length: 20 }).notNull().default(""),
