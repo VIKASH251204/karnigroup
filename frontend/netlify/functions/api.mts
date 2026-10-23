@@ -14,15 +14,26 @@ export default async (req: Request) => {
     const url = new URL(req.url);
     const [resource, rawId, action, rawExtra] = url.pathname.replace(/^\/api\/?/, '').split('/');
     const method = req.method;
+    // Opening the login endpoint in a browser must not enter protected API routing.
+    if (resource === 'auth' && rawId === 'login' && !action && !rawExtra) {
+      if (method === 'GET' || method === 'HEAD') {
+        return new Response(null, { status: 303, headers: { Location: '/login', 'Cache-Control': 'no-store' } });
+      }
+      if (method !== 'POST') {
+        return Response.json({ message: 'Use POST with email and password to sign in, or open /login.' }, {
+          status: 405, headers: { Allow: 'GET, HEAD, POST', 'Cache-Control': 'no-store' },
+        });
+      }
+    }
     if (!['GET','HEAD','OPTIONS'].includes(method)) verifyRequestOrigin(req);
     if (resource === 'health' && method === 'GET') {
       await db.execute(sql`select 1`);
       return ok({ status: 'ok', database: 'connected' });
     }
-    if (resource === 'auth' && rawId === 'login' && method === 'POST') {
+    if (resource === 'auth' && rawId === 'login' && !action && !rawExtra && method === 'POST') {
       const body = await readJson(req);
-      if (typeof body.email !== 'string' || typeof body.password !== 'string') throw badRequest('Email and password are required');
-      await login(body.email, body.password);
+      if (typeof body.email !== 'string' || !body.email.trim() || typeof body.password !== 'string' || !body.password) throw badRequest('Email and password are required');
+      await login(body.email.trim(), body.password);
       return ok({ message: 'Signed in' });
     }
     const me = await authenticate(req);
